@@ -54,40 +54,45 @@ The full form of an ARM is an advanced reduced instruction set computer (RISC) m
 
 ```
 #include "main.h"
-#include <stdbool.h>
-
-void push_button();
+#include "stdbool.h"
 bool button_status;
-
+void led();
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 
-void push_button()
-{
-	button_status = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5);
-	if (button_status == 0)  // Button pressed (assuming active-low)
-	{
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);  // Toggle LED
-		HAL_Delay(500);  // Delay to make it blink at 500ms intervals
-	}
-}
-
 int main(void)
 {
-	HAL_Init();
-	SystemClock_Config();
-	MX_GPIO_Init();
-	while (1)
+  HAL_Init();
+  SystemClock_Config();
+  MX_GPIO_Init();
+
+  while (1)
+  {
+	  led();
+  }
+}
+
+void led()
+{
+	button_status=HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13);
+	if(button_status==0)
 	{
-		push_button();
+		HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_SET);
 	}
+	else
+	{
+		HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,GPIO_PIN_RESET);
+	}
+	HAL_Delay(500);
 }
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
+
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
@@ -96,6 +101,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
@@ -108,34 +114,44 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 }
+
+
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
+
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
   GPIO_InitStruct.Pin = GPIO_PIN_13;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = GPIO_PIN_5;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-  GPIO_InitStruct.Pin = GPIO_PIN_5;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 }
+
 void Error_Handler(void)
 {
   __disable_irq();
   while (1)
   {
   }
+
 }
 
 #ifdef  USE_FULL_ASSERT
+
 void assert_failed(uint8_t *file, uint32_t line)
 {
+
 }
 #endif
 
@@ -143,13 +159,14 @@ void assert_failed(uint8_t *file, uint32_t line)
 
 ## Output  :
 
- ![Screenshot 2025-04-24 182915](https://github.com/user-attachments/assets/b08ed28b-1c98-49a7-ab98-82323eb5c251)
+![WhatsApp Image 2025-05-03 at 13 10 27_505de9ab](https://github.com/user-attachments/assets/22780124-5480-4cae-ab14-b75794667752)
 
-![Screenshot 2025-04-24 182925](https://github.com/user-attachments/assets/04ee6a13-50f2-42d5-ac8e-49b5aca00ac8)
+![Screenshot 2025-05-03 131155](https://github.com/user-attachments/assets/439df3e6-c6f2-4f63-b195-43ce0784e718)
 
 ## layout of the circuit 
- 
- ![Screenshot 2025-04-24 182937](https://github.com/user-attachments/assets/a70ffba4-52f6-4f03-a524-3e41d914b738)
+
+![Screenshot 2025-05-03 131207](https://github.com/user-attachments/assets/79a6e659-285c-4d1f-b86d-35c17858b6b4)
+
 
 ## Result :
 Interfacing a digital Input (Pushbutton ) with ARM microcontroller based IOT development is executed and the results are verified.
